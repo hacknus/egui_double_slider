@@ -2,6 +2,15 @@
 name = "egui_double_slider"
 version = "0.1.0"
 edition = "2021"
+authors = ["Linus Leo Stöckli"]
+repository = "https://github.com/hacknus/egui_double_slider"
+description = "A double slider widget for egui."
+readme = "README.md"
+keywords = ["egui", "slider", "double-slider", "widget"]
+categories = ["gui"]
+documentation = "https://docs.rs/egui_double_slider"
+homepage = "https://github.com/hacknus/egui_double_slider"
+license = "Apache-2.0"
 
 [dependencies]
 eframe = "0.29"
