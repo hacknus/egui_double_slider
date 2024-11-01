@@ -8,10 +8,11 @@ A double slider widget for the GUI rust library [https://github.com/emilk/egui](
 
 ![screenshot](screenshot.png)
 
-Add double slider to your `cargo.toml`.
+Add double slider along with egui to your `cargo.toml`.
 
 ```toml
-egui_double_slider = "0.2.0"
+egui_double_slider = "0.3.0"
+egui = "0.29"
 ```
 
 Example code:
