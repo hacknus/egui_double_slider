@@ -31,6 +31,8 @@ pub struct DoubleSlider<'a> {
     separation_distance: f32,
     control_point_radius: f32,
     inverted_highlighting: bool,
+    scroll_factor: f32,
+    zoom_factor: f32,
     width: f32,
     color: Color32,
     cursor_fill: Color32,
@@ -50,6 +52,8 @@ impl<'a> DoubleSlider<'a> {
             separation_distance: 75.0,
             control_point_radius: 7.0,
             inverted_highlighting: false,
+            scroll_factor: 10.0,
+            zoom_factor: 10.0,
             width: 100.0,
             cursor_fill: Color32::DARK_GRAY,
             color: Color32::DARK_GRAY,
@@ -62,6 +66,20 @@ impl<'a> DoubleSlider<'a> {
     #[inline]
     pub fn width(mut self, width: f32) -> Self {
         self.width = width;
+        self
+    }
+
+    /// set the zoom factor. This depends on the responsiveness that you would like to have for zooming
+    #[inline]
+    pub fn zoom_factor(mut self, zoom_factor: f32) -> Self {
+        self.zoom_factor = zoom_factor;
+        self
+    }
+
+    /// set the scroll factor. This depends on the responsiveness that you would like to have for scrolling
+    #[inline]
+    pub fn scroll_factor(mut self, scroll_factor: f32) -> Self {
+        self.scroll_factor = scroll_factor;
         self
     }
 
@@ -179,7 +197,6 @@ impl<'a> Widget for DoubleSlider<'a> {
                 stroke
             } else {
                 Stroke::new(1.0, self.stroke.color)
-
             }
         } else {
             Stroke::new(0.0, self.stroke.color)
@@ -322,6 +339,23 @@ impl<'a> Widget for DoubleSlider<'a> {
 
         // draw control points
         painter.extend(shapes);
+
+        let zoom_id = response.id.with(4);
+        let zoom_response = ui.interact(response.rect, zoom_id, Sense::hover());
+
+        // scroll through time axis
+        if zoom_response.hovered() {
+            let scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
+            *self.left_slider += scroll_delta.x / self.scroll_factor;
+            *self.right_slider += scroll_delta.x / self.scroll_factor;
+
+            *self.left_slider += scroll_delta.y / self.scroll_factor;
+            *self.right_slider += scroll_delta.y / self.scroll_factor;
+            let zoom_delta = ui.ctx().input(|i| i.zoom_delta() - 1.0);
+
+            *self.right_slider += zoom_delta * self.zoom_factor;
+            *self.left_slider -= zoom_delta * self.zoom_factor;
+        }
 
         response
     }
