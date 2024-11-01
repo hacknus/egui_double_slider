@@ -52,7 +52,7 @@ impl<'a> DoubleSlider<'a> {
             separation_distance: 75.0,
             control_point_radius: 7.0,
             inverted_highlighting: false,
-            scroll_factor: 10.0,
+            scroll_factor: 0.01,
             zoom_factor: 10.0,
             width: 100.0,
             cursor_fill: Color32::DARK_GRAY,
@@ -69,14 +69,16 @@ impl<'a> DoubleSlider<'a> {
         self
     }
 
-    /// set the zoom factor. This depends on the responsiveness that you would like to have for zooming
+    /// set the zoom factor (multiplied with cursor zoom). This depends on the responsiveness that you would like to have for zooming
+    /// default is 10.0
     #[inline]
     pub fn zoom_factor(mut self, zoom_factor: f32) -> Self {
         self.zoom_factor = zoom_factor;
         self
     }
 
-    /// set the scroll factor. This depends on the responsiveness that you would like to have for scrolling
+    /// set the scroll factor (multiplied with cursor scroll). This depends on the responsiveness that you would like to have for scrolling
+    /// default is 0.01
     #[inline]
     pub fn scroll_factor(mut self, scroll_factor: f32) -> Self {
         self.scroll_factor = scroll_factor;
@@ -346,11 +348,11 @@ impl<'a> Widget for DoubleSlider<'a> {
         // scroll through time axis
         if zoom_response.hovered() {
             let scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
-            *self.left_slider += scroll_delta.x / self.scroll_factor;
-            *self.right_slider += scroll_delta.x / self.scroll_factor;
+            *self.left_slider += scroll_delta.x * self.scroll_factor;
+            *self.right_slider += scroll_delta.x * self.scroll_factor;
 
-            *self.left_slider += scroll_delta.y / self.scroll_factor;
-            *self.right_slider += scroll_delta.y / self.scroll_factor;
+            *self.left_slider += scroll_delta.y * self.scroll_factor;
+            *self.right_slider += scroll_delta.y * self.scroll_factor;
             let zoom_delta = ui.ctx().input(|i| i.zoom_delta() - 1.0);
 
             *self.right_slider += zoom_delta * self.zoom_factor;
