@@ -1,5 +1,5 @@
 use eframe::{App, NativeOptions};
-use egui::{Context, Stroke, Vec2, Window};
+use egui::{Context, Window};
 use egui_double_slider::DoubleSlider;
 
 fn main() {
