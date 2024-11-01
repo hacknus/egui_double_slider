@@ -18,9 +18,9 @@ const OFFSET: f32 = 2.0;
 /// use egui_double_slider::DoubleSlider;
 ///
 /// egui::__run_test_ui(|ui| {
-/// let mut my_f32: f32 = 0.0;
-/// let mut my_other_f32: f32 = 0.0;
-///    ui.add(DoubleSlider::new(&mut my_f32,&mut my_other_f32, 0.0..=100.0));
+///     let mut my_f32: f32 = 0.0;
+///     let mut my_other_f32: f32 = 0.0;
+///         ui.add(DoubleSlider::new(&mut my_f32,&mut my_other_f32, 0.0..=100.0));
 /// });
 /// ```
 ///
