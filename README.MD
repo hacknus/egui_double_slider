@@ -4,14 +4,14 @@
 [![Docs](https://docs.rs/egui_double_slider/badge.svg)](https://docs.rs/egui_double_slider)
 [![Rust](https://github.com/hacknus/egui_double_slider/actions/workflows/rust.yml/badge.svg)](https://github.com/hacknus/egui_double_slider/actions/workflows/rust.yml)
 
-A double slider widget for the GUI rust library [https://github.com/emilk/egui](egui).
+A double slider widget for the GUI rust library [egui](https://github.com/emilk/egui).
 
 ![screenshot](screenshot.png)
 
 Add double slider along with egui to your `cargo.toml`.
 
 ```toml
-egui_double_slider = "0.3.1"
+egui_double_slider = "0.3.2"
 egui = "0.29"
 ```
 
