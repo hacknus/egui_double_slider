@@ -15,6 +15,11 @@ egui_double_slider = "0.3.3"
 egui = "0.30"
 ```
 
+To run the example:
+```shell
+cargo run --example example
+```
+
 Example code:
 
 ```rust
