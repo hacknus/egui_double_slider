@@ -6,8 +6,14 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 ### Added:
 
-* Add example instructions
 * ...
+
+# 0.4.0 - 9.2.2025
+
+### Added:
+
+* Add example instructions
+* Update to egui 0.31
 
 ## 0.3.2 - 5.12.2024
 

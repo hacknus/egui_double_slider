@@ -1,7 +1,7 @@
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::{CircleShape, Color32, PathShape, Shape, Stroke};
 use egui::epaint::RectShape;
-use egui::{Sense, Ui, Widget};
+use egui::{Sense, StrokeKind, Ui, Widget};
 use std::ops::RangeInclusive;
 
 // offset for stroke highlight
@@ -278,6 +278,7 @@ impl<'a> Widget for DoubleSlider<'a> {
                 0.0,
                 self.stroke.color,
                 stroke,
+                StrokeKind::Middle,
             )));
         } else {
             let left_rect = Rect::from_min_max(
@@ -306,12 +307,14 @@ impl<'a> Widget for DoubleSlider<'a> {
                 0.0,
                 self.stroke.color,
                 Stroke::new(0.0, self.stroke.color),
+                StrokeKind::Middle,
             )));
             shapes.push(Shape::Rect(RectShape::new(
                 right_rect,
                 0.0,
                 self.stroke.color,
                 Stroke::new(0.0, self.stroke.color),
+                StrokeKind::Middle,
             )));
         }
 
