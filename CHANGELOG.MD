@@ -6,6 +6,7 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 ### Added:
 
+* move `eframe` to dev-dependencies
 * ...
 
 # 0.4.0 - 9.2.2025
