@@ -13,5 +13,7 @@ homepage = "https://github.com/hacknus/egui_double_slider"
 license = "Apache-2.0"
 
 [dependencies]
-eframe = "0.31"
 egui = "0.31"
+
+[dev-dependencies]
+eframe = "0.31"
