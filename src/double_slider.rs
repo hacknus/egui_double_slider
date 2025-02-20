@@ -1,6 +1,5 @@
-use eframe::emath::{Pos2, Rect, Vec2};
-use eframe::epaint::{CircleShape, Color32, PathShape, Shape, Stroke};
-use egui::epaint::RectShape;
+use egui::emath::{Pos2, Rect, RectTransform, Vec2};
+use egui::epaint::{CircleShape, Color32, PathShape, RectShape, Shape, Stroke};
 use egui::{Sense, StrokeKind, Ui, Widget};
 use std::ops::RangeInclusive;
 
@@ -167,7 +166,7 @@ impl<'a> Widget for DoubleSlider<'a> {
             Stroke::new(self.stroke.width, self.color),
         ));
 
-        let to_screen = eframe::emath::RectTransform::from_to(
+        let to_screen = RectTransform::from_to(
             Rect::from_min_size(Pos2::ZERO, response.rect.size()),
             response.rect,
         );
