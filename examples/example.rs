@@ -28,8 +28,8 @@ impl Default for MyApp {
             slider_f32_high: 200.0,
             slider_f64_low: 10.0,
             slider_f64_high: 150.0,
-            slider_i32_low: -5,
-            slider_i32_high: 5,
+            slider_i32_low: -20,
+            slider_i32_high: 40,
         }
     }
 }
@@ -74,7 +74,7 @@ impl App for MyApp {
                 DoubleSlider::new(
                     &mut self.slider_i32_low,
                     &mut self.slider_i32_high,
-                    -100..=100,
+                    -150..=150,
                 )
                 .width(width)
                 .separation_distance(1),
