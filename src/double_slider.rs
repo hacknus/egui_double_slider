@@ -46,7 +46,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
         DoubleSlider {
             left_slider: lower_value,
             right_slider: upper_value,
-            separation_distance: T::from_f64(75.0),
+            separation_distance: T::from_f64(1.0),
             control_point_radius: 7.0,
             inverted_highlighting: false,
             scroll_factor: if T::INTEGRAL { 0.04 } else { 0.01 },
