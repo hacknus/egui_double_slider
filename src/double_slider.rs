@@ -439,6 +439,9 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
                 *self.right_slider = self.f64_to_val(self.right_slider_f64() + zoom_delta as f64);
                 *self.left_slider = self.f64_to_val(self.left_slider_f64() - zoom_delta as f64);
             }
+
+            *self.left_slider = self.clamp_to_range(self.left_slider);
+            *self.right_slider = self.clamp_to_range(self.right_slider);
         }
 
         response
