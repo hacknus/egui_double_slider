@@ -1,4 +1,4 @@
-use egui::emath::{Pos2, Rect, RectTransform, Vec2};
+use egui::emath::{Numeric, Pos2, Rect, RectTransform, Vec2};
 use egui::epaint::{CircleShape, Color32, PathShape, RectShape, Shape, Stroke};
 use egui::{Sense, StrokeKind, Ui, Widget};
 use std::ops::RangeInclusive;
@@ -24,10 +24,10 @@ const OFFSET: f32 = 2.0;
 /// ```
 ///
 #[must_use = "You should put this widget in a ui with `ui.add(widget);`"]
-pub struct DoubleSlider<'a> {
-    left_slider: &'a mut f32,
-    right_slider: &'a mut f32,
-    separation_distance: f32,
+pub struct DoubleSlider<'a, T: Numeric> {
+    left_slider: &'a mut T,
+    right_slider: &'a mut T,
+    separation_distance: T,
     control_point_radius: f32,
     inverted_highlighting: bool,
     scroll_factor: f32,
@@ -36,19 +36,15 @@ pub struct DoubleSlider<'a> {
     color: Color32,
     cursor_fill: Color32,
     stroke: Stroke,
-    range: RangeInclusive<f32>,
+    range: RangeInclusive<T>,
 }
 
-impl<'a> DoubleSlider<'a> {
-    pub fn new(
-        lower_value: &'a mut f32,
-        upper_value: &'a mut f32,
-        range: RangeInclusive<f32>,
-    ) -> Self {
+impl<'a, T: Numeric> DoubleSlider<'a, T> {
+    pub fn new(lower_value: &'a mut T, upper_value: &'a mut T, range: RangeInclusive<T>) -> Self {
         DoubleSlider {
             left_slider: lower_value,
             right_slider: upper_value,
-            separation_distance: 75.0,
+            separation_distance: T::from_f64(75.0),
             control_point_radius: 7.0,
             inverted_highlighting: false,
             scroll_factor: 0.01,
@@ -93,7 +89,7 @@ impl<'a> DoubleSlider<'a> {
 
     /// Set the separation distance for the two sliders.
     #[inline]
-    pub fn separation_distance(mut self, separation_distance: f32) -> Self {
+    pub fn separation_distance(mut self, separation_distance: T) -> Self {
         self.separation_distance = separation_distance;
         self
     }
@@ -133,22 +129,24 @@ impl<'a> DoubleSlider<'a> {
         self
     }
 
-    fn val_to_x(&self, val: f32) -> f32 {
+    fn val_to_x(&self, val: T) -> f32 {
         (self.width - 2.0 * self.control_point_radius - 2.0 * OFFSET)
-            / (self.range.end() - self.range.start())
-            * (val - self.range.start())
+            / (self.range.end().to_f64() - self.range.start().to_f64()) as f32
+            * (val.to_f64() - self.range.start().to_f64()) as f32
             + self.control_point_radius
             + OFFSET
     }
 
-    fn x_to_val(&self, x: f32) -> f32 {
-        (self.range.end() - self.range.start())
-            / (self.width - 2.0 * self.control_point_radius - 2.0 * OFFSET)
-            * x
+    fn x_to_val(&self, x: f32) -> T {
+        T::from_f64(
+            (self.range.end().to_f64() - self.range.start().to_f64())
+                / (self.width - 2.0 * self.control_point_radius - 2.0 * OFFSET) as f64
+                * x as f64,
+        )
     }
 }
 
-impl<'a> Widget for DoubleSlider<'a> {
+impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
         // calculate height
         let height = 2.0 * self.control_point_radius + 2.0 * OFFSET;
@@ -187,8 +185,14 @@ impl<'a> Widget for DoubleSlider<'a> {
 
             // drag both sliders by dragging the highlighted part (only when not highlighting is not inverted)
             if in_between_response.dragged() {
-                *self.right_slider += self.x_to_val(in_between_response.drag_delta().x);
-                *self.left_slider += self.x_to_val(in_between_response.drag_delta().x);
+                *self.right_slider = T::from_f64(
+                    self.right_slider.to_f64()
+                        + self.x_to_val(in_between_response.drag_delta().x).to_f64(),
+                );
+                *self.left_slider = T::from_f64(
+                    self.left_slider.to_f64()
+                        + self.x_to_val(in_between_response.drag_delta().x).to_f64(),
+                );
                 response.mark_changed();
             }
 
@@ -219,16 +223,25 @@ impl<'a> Widget for DoubleSlider<'a> {
         }
 
         // handle logic
-        *self.left_slider += self.x_to_val(point_response.drag_delta().x);
-        if *self.right_slider < *self.left_slider + self.separation_distance {
-            *self.right_slider = *self.left_slider + self.separation_distance;
+        *self.left_slider = T::from_f64(
+            self.left_slider.to_f64() + self.x_to_val(point_response.drag_delta().x).to_f64(),
+        );
+        if self.right_slider.to_f64()
+            < self.left_slider.to_f64() + self.separation_distance.to_f64()
+        {
+            *self.right_slider =
+                T::from_f64(self.left_slider.to_f64() + self.separation_distance.to_f64());
         }
-        *self.right_slider = self
-            .right_slider
-            .clamp(*self.range.start(), *self.range.end());
-        *self.left_slider = self
-            .left_slider
-            .clamp(*self.range.start(), *self.range.end());
+        *self.right_slider = T::from_f64(
+            self.right_slider
+                .to_f64()
+                .clamp(self.range.start().to_f64(), self.range.end().to_f64()),
+        );
+        *self.left_slider = T::from_f64(
+            self.left_slider
+                .to_f64()
+                .clamp(self.range.start().to_f64(), self.range.end().to_f64()),
+        );
 
         let left_circle_stroke = ui.style().interact(&point_response).fg_stroke;
 
@@ -247,16 +260,25 @@ impl<'a> Widget for DoubleSlider<'a> {
         }
 
         // handle logic
-        *self.right_slider += self.x_to_val(point_response.drag_delta().x);
-        if *self.left_slider > *self.right_slider - self.separation_distance {
-            *self.left_slider = *self.right_slider - self.separation_distance;
+        *self.right_slider = T::from_f64(
+            self.right_slider.to_f64() + self.x_to_val(point_response.drag_delta().x).to_f64(),
+        );
+        if self.left_slider.to_f64()
+            > self.right_slider.to_f64() - self.separation_distance.to_f64()
+        {
+            *self.left_slider =
+                T::from_f64(self.right_slider.to_f64() - self.separation_distance.to_f64());
         }
-        *self.right_slider = self
-            .right_slider
-            .clamp(*self.range.start(), *self.range.end());
-        *self.left_slider = self
-            .left_slider
-            .clamp(*self.range.start(), *self.range.end());
+        *self.right_slider = T::from_f64(
+            self.right_slider
+                .to_f64()
+                .clamp(self.range.start().to_f64(), self.range.end().to_f64()),
+        );
+        *self.left_slider = T::from_f64(
+            self.left_slider
+                .to_f64()
+                .clamp(self.range.start().to_f64(), self.range.end().to_f64()),
+        );
 
         let right_circle_stroke = ui.style().interact(&point_response).fg_stroke;
 
@@ -350,15 +372,21 @@ impl<'a> Widget for DoubleSlider<'a> {
         // scroll through time axis
         if zoom_response.hovered() {
             let scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
-            *self.left_slider += scroll_delta.x * self.scroll_factor;
-            *self.right_slider += scroll_delta.x * self.scroll_factor;
+            *self.left_slider = T::from_f64(
+                self.left_slider.to_f64()
+                    + ((scroll_delta.x + scroll_delta.y) * self.scroll_factor) as f64,
+            );
+            *self.right_slider = T::from_f64(
+                self.right_slider.to_f64()
+                    + ((scroll_delta.x + scroll_delta.y) * self.scroll_factor) as f64,
+            );
 
-            *self.left_slider += scroll_delta.y * self.scroll_factor;
-            *self.right_slider += scroll_delta.y * self.scroll_factor;
             let zoom_delta = ui.ctx().input(|i| i.zoom_delta() - 1.0);
 
-            *self.right_slider += zoom_delta * self.zoom_factor;
-            *self.left_slider -= zoom_delta * self.zoom_factor;
+            *self.right_slider =
+                T::from_f64(self.right_slider.to_f64() + (zoom_delta * self.zoom_factor) as f64);
+            *self.left_slider =
+                T::from_f64(self.left_slider.to_f64() - (zoom_delta * self.zoom_factor) as f64);
         }
 
         response
