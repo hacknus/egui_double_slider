@@ -6,7 +6,18 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 ### Added:
 
-* ...
+* Handle any numeric type
+* Add option to use logarithmic scale
+* Add option to prevent dragging a value beyond the other one
+
+### Fixed:
+
+* Make the "in_between" drag zone smaller to avoid overlapping with the handles
+* Prevent scroll and zoom from setting a value outside the allowed range
+
+### Changed:
+
+* Set default separation_distance to 1.0
 
 # 0.5.0 - 20.2.2025
 
