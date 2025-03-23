@@ -19,6 +19,8 @@ pub struct MyApp {
     slider_f64_high: f64,
     slider_i32_low: i32,
     slider_i32_high: i32,
+    slider_f64_log_low: f64,
+    slider_f64_log_high: f64,
 }
 
 impl Default for MyApp {
@@ -30,6 +32,8 @@ impl Default for MyApp {
             slider_f64_high: 150.0,
             slider_i32_low: -20,
             slider_i32_high: 40,
+            slider_f64_log_low: 3e-4,
+            slider_f64_log_high: 7e12,
         }
     }
 }
@@ -81,6 +85,23 @@ impl App for MyApp {
             );
             ui.label(format!("Lower Bound: {}", self.slider_i32_low));
             ui.label(format!("Upper Bound: {}", self.slider_i32_high));
+
+            ui.separator();
+            ui.label("logarithmic f64:");
+            ui.add(
+                DoubleSlider::new(
+                    &mut self.slider_f64_log_low,
+                    &mut self.slider_f64_log_high,
+                    1e-10..=1e20,
+                )
+                .width(width)
+                .separation_distance(1e-10)
+                .logarithmic(true)
+                .scroll_factor(0.1)
+                .zoom_factor(15.0),
+            );
+            ui.label(format!("Lower Bound: {:.3e}", self.slider_f64_log_low));
+            ui.label(format!("Upper Bound: {:.3e}", self.slider_f64_log_high));
         });
     }
 }

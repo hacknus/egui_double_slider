@@ -37,6 +37,7 @@ pub struct DoubleSlider<'a, T: Numeric> {
     cursor_fill: Color32,
     stroke: Stroke,
     range: RangeInclusive<T>,
+    logarithmic: bool,
 }
 
 impl<'a, T: Numeric> DoubleSlider<'a, T> {
@@ -54,6 +55,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
             color: Color32::DARK_GRAY,
             stroke: Stroke::new(7.0, Color32::RED.linear_multiply(0.5)),
             range,
+            logarithmic: false,
         }
     }
 
@@ -129,23 +131,45 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
         self
     }
 
-    fn val_to_x(&self, val: T) -> f32 {
+    // Use a logarithmic scale
+    #[inline]
+    pub fn logarithmic(mut self, logarithmic: bool) -> Self {
         let range_f64 = self.range_f64();
+        assert!(
+            *range_f64.start() > 0.0 && range_f64.end().is_finite(),
+            "Logarithmic scale can only be used with finite, strictly positive values"
+        );
+        self.logarithmic = logarithmic;
+        self
+    }
+
+    fn val_to_x(&self, val: T) -> f32 {
         let offset = self.control_point_radius + OFFSET;
         let slider_width = self.width - 2.0 * offset;
-        let ratio =
-            ((val.to_f64() - range_f64.start()) / (range_f64.end() - range_f64.start())) as f32;
+        let mut range_f64 = self.range_f64();
+        let mut val = val.to_f64();
+        if self.logarithmic {
+            range_f64 = range_f64.start().log10()..=range_f64.end().log10();
+            val = val.log10();
+        }
+        let ratio = ((val - range_f64.start()) / (range_f64.end() - range_f64.start())) as f32;
 
         ratio * slider_width + offset
     }
 
     fn x_to_val(&self, x: f32) -> T {
-        let range_f64 = self.range_f64();
         let offset = self.control_point_radius + OFFSET;
         let slider_width = (self.width - 2.0 * offset) as f64;
         let ratio = (x - offset) as f64 / slider_width;
+        let range_f64 = self.range_f64();
+        let val = if self.logarithmic {
+            let (start, end) = (range_f64.start().log10(), range_f64.end().log10());
+            10.0f64.powf(start + (end - start) * ratio)
+        } else {
+            range_f64.start() + (*range_f64.end() - *range_f64.start()) * ratio
+        };
 
-        self.f64_to_val(range_f64.start() + (*range_f64.end() - *range_f64.start()) * ratio)
+        self.f64_to_val(val)
     }
 
     fn left_slider_f64(&self) -> f64 {
@@ -387,15 +411,23 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         // scroll through time axis
         if zoom_response.hovered() {
             let scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
-            let value_delta_from_scroll =
-                ((scroll_delta.x + scroll_delta.y) * self.scroll_factor) as f64;
-            *self.left_slider = self.f64_to_val(self.left_slider_f64() + value_delta_from_scroll);
-            *self.right_slider = self.f64_to_val(self.right_slider_f64() + value_delta_from_scroll);
+            let scroll_delta = self.scroll_factor * (scroll_delta.x + scroll_delta.y);
+            let zoom_delta = self.zoom_factor * ui.ctx().input(|i| i.zoom_delta() - 1.0);
 
-            let zoom_delta = ui.ctx().input(|i| i.zoom_delta() - 1.0);
-            let value_delta_from_zoom = (zoom_delta * self.zoom_factor) as f64;
-            *self.right_slider = self.f64_to_val(self.right_slider_f64() + value_delta_from_zoom);
-            *self.left_slider = self.f64_to_val(self.left_slider_f64() - value_delta_from_zoom);
+            if self.logarithmic {
+                *self.left_slider = self.x_to_val(self.val_to_x(*self.left_slider) + scroll_delta);
+                *self.right_slider =
+                    self.x_to_val(self.val_to_x(*self.right_slider) + scroll_delta);
+
+                *self.left_slider = self.x_to_val(self.val_to_x(*self.left_slider) + zoom_delta);
+                *self.right_slider = self.x_to_val(self.val_to_x(*self.right_slider) - zoom_delta);
+            } else {
+                *self.left_slider = self.f64_to_val(self.left_slider_f64() + scroll_delta as f64);
+                *self.right_slider = self.f64_to_val(self.right_slider_f64() + scroll_delta as f64);
+
+                *self.right_slider = self.f64_to_val(self.right_slider_f64() + zoom_delta as f64);
+                *self.left_slider = self.f64_to_val(self.left_slider_f64() - zoom_delta as f64);
+            }
         }
 
         response
