@@ -197,11 +197,11 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         let stroke = if !self.inverted_highlighting {
             let in_between_rect = Rect::from_min_max(
                 to_screen.transform_pos(Pos2 {
-                    x: self.val_to_x(*self.left_slider),
+                    x: self.val_to_x(*self.left_slider) + self.control_point_radius,
                     y: height / 2.0 - self.stroke.width / 2.0,
                 }),
                 to_screen.transform_pos(Pos2 {
-                    x: self.val_to_x(*self.right_slider),
+                    x: self.val_to_x(*self.right_slider) - self.control_point_radius,
                     y: height / 2.0 + self.stroke.width / 2.0,
                 }),
             );
