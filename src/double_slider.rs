@@ -38,6 +38,7 @@ pub struct DoubleSlider<'a, T: Numeric> {
     stroke: Stroke,
     range: RangeInclusive<T>,
     logarithmic: bool,
+    push_by_dragging: bool,
 }
 
 impl<'a, T: Numeric> DoubleSlider<'a, T> {
@@ -56,6 +57,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
             stroke: Stroke::new(7.0, Color32::RED.linear_multiply(0.5)),
             range,
             logarithmic: false,
+            push_by_dragging: true,
         }
     }
 
@@ -143,6 +145,13 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
         self
     }
 
+    /// Allow to drag the lower value to the right of the upper value, and vice versa.
+    #[inline]
+    pub fn push_by_dragging(mut self, push_by_dragging: bool) -> Self {
+        self.push_by_dragging = push_by_dragging;
+        self
+    }
+
     fn val_to_x(&self, val: T) -> f32 {
         let offset = self.control_point_radius + OFFSET;
         let slider_width = self.width - 2.0 * offset;
@@ -192,13 +201,17 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     fn f64_to_val(&self, float: f64) -> T {
         T::from_f64(if T::INTEGRAL { float.round() } else { float })
     }
+
+    fn clamp_to_range(&self, val: &T) -> T {
+        let (start, end) = (self.range.start().to_f64(), self.range.end().to_f64());
+        self.f64_to_val(val.to_f64().clamp(start, end))
+    }
 }
 
 impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
         // calculate height
         let height = 2.0 * self.control_point_radius + 2.0 * OFFSET;
-        let range_f64 = self.range_f64();
 
         let (mut response, painter) =
             ui.allocate_painter(Vec2::new(self.width, height), Sense::drag());
@@ -274,17 +287,16 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
 
         // handle logic
         if self.right_slider_f64() < self.left_slider_f64() + self.separation_distance_f64() {
-            *self.right_slider =
-                self.f64_to_val(self.left_slider_f64() + self.separation_distance_f64());
+            if self.push_by_dragging {
+                *self.right_slider =
+                    self.f64_to_val(self.left_slider_f64() + self.separation_distance_f64());
+            } else {
+                *self.left_slider =
+                    self.f64_to_val(self.right_slider_f64() - self.separation_distance_f64());
+            }
         }
-        *self.right_slider = self.f64_to_val(
-            self.right_slider_f64()
-                .clamp(*range_f64.start(), *range_f64.end()),
-        );
-        *self.left_slider = self.f64_to_val(
-            self.left_slider_f64()
-                .clamp(*range_f64.start(), *range_f64.end()),
-        );
+        *self.left_slider = self.clamp_to_range(self.left_slider);
+        *self.right_slider = self.clamp_to_range(self.right_slider);
 
         let left_circle_stroke = ui.style().interact(&point_response).fg_stroke;
 
@@ -307,17 +319,16 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
 
         // handle logic
         if self.left_slider_f64() > self.right_slider_f64() - self.separation_distance_f64() {
-            *self.left_slider =
-                self.f64_to_val(self.right_slider_f64() - self.separation_distance_f64());
+            if self.push_by_dragging {
+                *self.left_slider =
+                    self.f64_to_val(self.right_slider_f64() - self.separation_distance_f64());
+            } else {
+                *self.right_slider =
+                    self.f64_to_val(self.left_slider_f64() + self.separation_distance_f64());
+            }
         }
-        *self.right_slider = self.f64_to_val(
-            self.right_slider_f64()
-                .clamp(*range_f64.start(), *range_f64.end()),
-        );
-        *self.left_slider = self.f64_to_val(
-            self.left_slider_f64()
-                .clamp(*range_f64.start(), *range_f64.end()),
-        );
+        *self.left_slider = self.clamp_to_range(self.left_slider);
+        *self.right_slider = self.clamp_to_range(self.right_slider);
 
         let right_circle_stroke = ui.style().interact(&point_response).fg_stroke;
 

@@ -58,7 +58,7 @@ impl App for MyApp {
             ui.label(format!("Upper Bound: {:.2}", self.slider_f32_high));
 
             ui.separator();
-            ui.label("f64 values:");
+            ui.label("f64 values (inverted highlight):");
             ui.add(
                 DoubleSlider::new(
                     &mut self.slider_f64_low,
@@ -68,6 +68,21 @@ impl App for MyApp {
                 .width(width)
                 .separation_distance(10.0)
                 .invert_highlighting(true),
+            );
+            ui.label(format!("Lower Bound: {:.2}", self.slider_f64_low));
+            ui.label(format!("Upper Bound: {:.2}", self.slider_f64_high));
+
+            ui.separator();
+            ui.label("f64 values (cannot push by dragging):");
+            ui.add(
+                DoubleSlider::new(
+                    &mut self.slider_f64_low,
+                    &mut self.slider_f64_high,
+                    10.0..=300.0,
+                )
+                .width(width)
+                .separation_distance(10.0)
+                .push_by_dragging(false),
             );
             ui.label(format!("Lower Bound: {:.2}", self.slider_f64_low));
             ui.label(format!("Upper Bound: {:.2}", self.slider_f64_high));
