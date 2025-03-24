@@ -43,5 +43,4 @@ fn main() {
 
 TODO:
 
-- [ ] extend for integer, `f64`
 - [ ] better connection to egui ctx style (like the normal Slider widget)
