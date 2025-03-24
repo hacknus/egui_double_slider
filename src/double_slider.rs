@@ -17,9 +17,9 @@ const OFFSET: f32 = 2.0;
 /// use egui_double_slider::DoubleSlider;
 ///
 /// egui::__run_test_ui(|ui| {
-///     let mut my_f32: f32 = 0.0;
-///     let mut my_other_f32: f32 = 0.0;
-///         ui.add(DoubleSlider::new(&mut my_f32,&mut my_other_f32, 0.0..=100.0));
+///     let mut my_val: f32 = 0.0;
+///     let mut my_other_val: f32 = 0.0;
+///         ui.add(DoubleSlider::new(&mut my_val,&mut my_other_val, 0.0..=100.0));
 /// });
 /// ```
 ///
@@ -62,29 +62,31 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Set the primary width for the slider.
+    /// Default is 100.0
     #[inline]
     pub fn width(mut self, width: f32) -> Self {
         self.width = width;
         self
     }
 
-    /// set the zoom factor (multiplied with cursor zoom). This depends on the responsiveness that you would like to have for zooming
-    /// default is 10.0
+    /// Set the zoom factor (multiplied with cursor zoom). This depends on the responsiveness that you would like to have for zooming
+    /// Default is 10.0
     #[inline]
     pub fn zoom_factor(mut self, zoom_factor: f32) -> Self {
         self.zoom_factor = zoom_factor;
         self
     }
 
-    /// set the scroll factor (multiplied with cursor scroll). This depends on the responsiveness that you would like to have for scrolling
-    /// default is 0.01
+    /// Set the scroll factor (multiplied with cursor scroll). This depends on the responsiveness that you would like to have for scrolling
+    /// Default is 0.01
     #[inline]
     pub fn scroll_factor(mut self, scroll_factor: f32) -> Self {
         self.scroll_factor = scroll_factor;
         self
     }
 
-    /// invert the highlighted part.
+    /// Invert the highlighted part.
+    /// Default is false.
     #[inline]
     pub fn invert_highlighting(mut self, inverted_highlighting: bool) -> Self {
         self.inverted_highlighting = inverted_highlighting;
@@ -92,6 +94,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Set the separation distance for the two sliders.
+    /// Default is 1.
     #[inline]
     pub fn separation_distance(mut self, separation_distance: T) -> Self {
         self.separation_distance = separation_distance;
@@ -99,6 +102,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Set the primary color for the slider.
+    /// Default is `egui::epaint::Color32::DARK_GRAY`.
     #[inline]
     pub fn color(mut self, color: Color32) -> Self {
         self.color = color;
@@ -106,6 +110,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Set the stroke for the main line.
+    /// Default is `Stroke::new(7.0, Color32::RED.linear_multiply(0.5))`.
     #[inline]
     pub fn stroke(mut self, stroke: Stroke) -> Self {
         self.stroke = stroke;
@@ -113,27 +118,23 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Set the color fill for the slider cursor.
+    /// Default is `egui::epaint::Color32::DARK_GRAY`.
     #[inline]
     pub fn cursor_fill(mut self, cursor_fill: Color32) -> Self {
         self.cursor_fill = cursor_fill;
         self
     }
 
-    /// Set the auxiliary stroke.
-    #[inline]
-    pub fn aux_stroke(mut self, aux_stroke: Stroke) -> Self {
-        self.stroke = aux_stroke;
-        self
-    }
-
     /// Set the control point radius
+    /// Default is 7.0
     #[inline]
     pub fn control_point_radius(mut self, control_point_radius: f32) -> Self {
         self.control_point_radius = control_point_radius;
         self
     }
 
-    // Use a logarithmic scale
+    /// Use a logarithmic scale.
+    /// Default is false.
     #[inline]
     pub fn logarithmic(mut self, logarithmic: bool) -> Self {
         let range_f64 = self.range_f64();
@@ -146,6 +147,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Allow to drag the lower value to the right of the upper value, and vice versa.
+    /// Default is true.
     #[inline]
     pub fn push_by_dragging(mut self, push_by_dragging: bool) -> Self {
         self.push_by_dragging = push_by_dragging;
