@@ -216,7 +216,7 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         let height = 2.0 * self.control_point_radius + 2.0 * OFFSET;
 
         let (mut response, painter) =
-            ui.allocate_painter(Vec2::new(self.width, height), Sense::drag());
+            ui.allocate_painter(Vec2::new(self.width, height), Sense::click_and_drag());
         let mut left_edge = response.rect.left_center();
         left_edge.x += self.control_point_radius;
         let mut right_edge = response.rect.right_center();
@@ -245,7 +245,8 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
                 }),
             );
             let in_between_id = response.id.with(2);
-            let in_between_response = ui.interact(in_between_rect, in_between_id, Sense::drag());
+            let in_between_response =
+                ui.interact(in_between_rect, in_between_id, Sense::click_and_drag());
 
             // drag both sliders by dragging the highlighted part (only when not highlighting is not inverted)
             if in_between_response.dragged() {
@@ -257,6 +258,8 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
                 );
                 response.mark_changed();
             }
+
+            response |= in_between_response.clone();
 
             if in_between_response.hovered() {
                 let mut stroke = ui.style().interact(&in_between_response).fg_stroke;
@@ -278,7 +281,7 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         });
         let point_rect = Rect::from_center_size(left_point_in_screen, size);
         let point_id = response.id.with(0);
-        let point_response = ui.interact(point_rect, point_id, Sense::drag());
+        let point_response = ui.interact(point_rect, point_id, Sense::click_and_drag());
 
         if point_response.dragged() {
             if let Some(pointer_pos) = point_response.interact_pointer_pos() {
@@ -301,6 +304,7 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         *self.right_slider = self.clamp_to_range(self.right_slider);
 
         let left_circle_stroke = ui.style().interact(&point_response).fg_stroke;
+        response |= point_response;
 
         // handle upper bound
         // get the control point
@@ -310,7 +314,7 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         });
         let point_rect = Rect::from_center_size(right_point_in_screen, size);
         let point_id = response.id.with(1);
-        let point_response = ui.interact(point_rect, point_id, Sense::drag());
+        let point_response = ui.interact(point_rect, point_id, Sense::click_and_drag());
 
         if point_response.dragged() {
             if let Some(pointer_pos) = point_response.interact_pointer_pos() {
@@ -333,6 +337,7 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         *self.right_slider = self.clamp_to_range(self.right_slider);
 
         let right_circle_stroke = ui.style().interact(&point_response).fg_stroke;
+        response |= point_response;
 
         // override all shapes before drawing, due to logic limits (calculated above)
         if !self.inverted_highlighting {
@@ -444,6 +449,10 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
 
             *self.left_slider = self.clamp_to_range(self.left_slider);
             *self.right_slider = self.clamp_to_range(self.right_slider);
+
+            if scroll_delta != 0.0 || zoom_delta != 0.0 {
+                response.mark_changed()
+            }
         }
 
         response

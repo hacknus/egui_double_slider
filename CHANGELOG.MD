@@ -8,6 +8,12 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 * ...
 
+# 0.7.0 - 24.3.2025
+
+### Added:
+
+* Pass through responses of all components (points, in-between section) to allow catching double clicks etc...
+
 # 0.6.0 - 24.3.2025
 
 ### Added:
