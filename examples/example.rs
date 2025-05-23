@@ -49,7 +49,7 @@ impl App for MyApp {
                 DoubleSlider::new(
                     &mut self.slider_f32_low,
                     &mut self.slider_f32_high,
-                    10.0..=10.0,
+                    10.0..=300.0,
                 )
                 .width(width)
                 .separation_distance(0.0),
