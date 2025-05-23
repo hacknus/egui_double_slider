@@ -8,6 +8,12 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 * ...
 
+# 0.7.1 - 23.5.2025
+
+### Added:
+
+* Fix for the case where range is specified as `0.0..=0.0` or any other single valued range.
+
 # 0.7.0 - 24.3.2025
 
 ### Added:
