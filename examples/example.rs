@@ -52,7 +52,7 @@ impl App for MyApp {
                     10.0..=300.0,
                 )
                 .width(width)
-                .separation_distance(10.0),
+                .separation_distance(0.0),
             );
             ui.label(format!("Lower Bound: {:.2}", self.slider_f32_low));
             ui.label(format!("Upper Bound: {:.2}", self.slider_f32_high));
