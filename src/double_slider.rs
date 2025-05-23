@@ -137,11 +137,14 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     /// Default is false.
     #[inline]
     pub fn logarithmic(mut self, logarithmic: bool) -> Self {
-        let range_f64 = self.range_f64();
-        assert!(
-            *range_f64.start() > 0.0 && range_f64.end().is_finite(),
-            "Logarithmic scale can only be used with finite, strictly positive values"
-        );
+        if logarithmic {
+            let range_f64 = self.range_f64();
+            assert!(
+                *range_f64.start() > 0.0 && range_f64.start().is_finite() &&
+                    *range_f64.end() > 0.0 && range_f64.end().is_finite(),
+                "Logarithmic scale can only be used with a range of finite, strictly positive values (both start and end)"
+            );
+        }
         self.logarithmic = logarithmic;
         self
     }
@@ -156,31 +159,86 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
 
     fn val_to_x(&self, val: T) -> f32 {
         let offset = self.control_point_radius + OFFSET;
-        let slider_width = self.width - 2.0 * offset;
-        let mut range_f64 = self.range_f64();
-        let mut val = val.to_f64();
+        // Calculate usable visual width of the slider track, ensuring it's not negative
+        let visual_slider_width = (self.width - 2.0 * offset).max(0.0);
+
+        let mut current_val_f64 = val.to_f64();
+        let mut range_min_f64 = self.range.start().to_f64();
+        let mut range_max_f64 = self.range.end().to_f64();
+
         if self.logarithmic {
-            range_f64 = range_f64.start().log10()..=range_f64.end().log10();
-            val = val.log10();
+            // Values are asserted to be > 0 in the logarithmic() setter.
+            // If range_min_f64 or range_max_f64 were <=0, log10 would produce NaN or Inf.
+            // current_val_f64 should also be > 0.
+            if current_val_f64 <= 0.0 || range_min_f64 <= 0.0 || range_max_f64 <= 0.0 {
+                // This case should ideally be prevented by assertions or clamping
+                // For safety, if inputs are invalid for log, default to a non-NaN behavior
+                // though this indicates a deeper issue if reached.
+                // Given the problem context (1..=1), this branch isn't the primary issue.
+                return offset; // Fallback to avoid NaN from log
+            }
+            current_val_f64 = current_val_f64.log10();
+            range_min_f64 = range_min_f64.log10();
+            range_max_f64 = range_max_f64.log10();
         }
-        let ratio = ((val - range_f64.start()) / (range_f64.end() - range_f64.start())) as f32;
 
-        ratio * slider_width + offset
-    }
+        let range_span_f64 = range_max_f64 - range_min_f64;
 
-    fn x_to_val(&self, x: f32) -> T {
-        let offset = self.control_point_radius + OFFSET;
-        let slider_width = (self.width - 2.0 * offset) as f64;
-        let ratio = (x - offset) as f64 / slider_width;
-        let range_f64 = self.range_f64();
-        let val = if self.logarithmic {
-            let (start, end) = (range_f64.start().log10(), range_f64.end().log10());
-            10.0f64.powf(start + (end - start) * ratio)
+        let ratio = if range_span_f64 == 0.0 {
+            // If the range is a single point (e.g., 1..=1, or log(1)..=log(1)),
+            // the value is conceptually at that point.
+            // Map this to the start (0.0) of the visual slider part.
+            0.0
         } else {
-            range_f64.start() + (*range_f64.end() - *range_f64.start()) * ratio
+            // Normalize current_val_f64 to a [0, 1] ratio within the range.
+            let normalized_val = (current_val_f64 - range_min_f64) / range_span_f64;
+            normalized_val.clamp(0.0, 1.0) // Clamp to handle potential floating point inaccuracies.
         };
 
-        self.f64_to_val(val)
+        // Map the ratio to the screen coordinate.
+        (ratio as f32 * visual_slider_width) + offset
+    }
+
+    fn x_to_val(&self, x_in_widget: f32) -> T {
+        let offset = self.control_point_radius + OFFSET;
+        // Calculate usable visual width of the slider track, ensuring it's not negative
+        let visual_slider_width = (self.width - 2.0 * offset).max(0.0) as f64;
+
+        let range_min_f64 = self.range.start().to_f64();
+        let range_max_f64 = self.range.end().to_f64();
+
+        let value_f64 = if range_min_f64 == range_max_f64 {
+            // If the range is a single point, any x position maps to this single value.
+            range_min_f64
+        } else {
+            // Position of x relative to the start of the slider track
+            let x_on_track = (x_in_widget - offset) as f64;
+
+            let ratio = if visual_slider_width == 0.0 {
+                // If visual width is zero (e.g. self.width is too small),
+                // effectively all points map to the start of the range.
+                0.0
+            } else {
+                (x_on_track / visual_slider_width).clamp(0.0, 1.0)
+            };
+
+            if self.logarithmic {
+                // Values are asserted to be > 0 in the logarithmic() setter.
+                if range_min_f64 <= 0.0 || range_max_f64 <= 0.0 {
+                    // Fallback, though assertions should prevent this.
+                    return self.f64_to_val(self.range.start().to_f64());
+                }
+                let log_min = range_min_f64.log10();
+                let log_max = range_max_f64.log10();
+                // This path is taken only if range_min_f64 != range_max_f64.
+                // If they are different and positive, their logs will also be different.
+                10.0f64.powf(log_min + (log_max - log_min) * ratio)
+            } else {
+                range_min_f64 + (range_max_f64 - range_min_f64) * ratio
+            }
+        };
+
+        self.f64_to_val(value_f64)
     }
 
     fn left_slider_f64(&self) -> f64 {
