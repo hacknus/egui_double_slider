@@ -110,6 +110,7 @@ impl App for MyApp {
                     1e-10..=1e20,
                 )
                 .width(width)
+                .vertical_scroll(false)
                 .separation_distance(1e-10)
                 .logarithmic(true)
                 .scroll_factor(0.1)

@@ -8,6 +8,12 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 * ...
 
+# 0.7.2 - 10.6.2025
+
+### Added:
+
+* Ability to select horizontal or vertical scroll axis.
+
 # 0.7.1 - 23.5.2025
 
 ### Added:
