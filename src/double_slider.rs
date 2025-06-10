@@ -30,6 +30,8 @@ pub struct DoubleSlider<'a, T: Numeric> {
     separation_distance: T,
     control_point_radius: f32,
     inverted_highlighting: bool,
+    vertical_scroll: bool,
+    horizontal_scroll: bool,
     scroll_factor: f32,
     zoom_factor: f32,
     width: f32,
@@ -49,6 +51,8 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
             separation_distance: T::from_f64(1.0),
             control_point_radius: 7.0,
             inverted_highlighting: false,
+            vertical_scroll: true,
+            horizontal_scroll: true,
             scroll_factor: if T::INTEGRAL { 0.04 } else { 0.01 },
             zoom_factor: 10.0,
             width: 100.0,
@@ -82,6 +86,22 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     #[inline]
     pub fn scroll_factor(mut self, scroll_factor: f32) -> Self {
         self.scroll_factor = scroll_factor;
+        self
+    }
+
+    /// Enable the horizontal scroll axis.
+    /// Default is true
+    #[inline]
+    pub fn horizontal_scroll(mut self, enable: bool) -> Self {
+        self.horizontal_scroll = enable;
+        self
+    }
+
+    /// Enable the vertical scroll axis.
+    /// Default is true
+    #[inline]
+    pub fn vertical_scroll(mut self, enable: bool) -> Self {
+        self.vertical_scroll = enable;
         self
     }
 
@@ -486,8 +506,14 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
 
         // scroll through time axis
         if zoom_response.hovered() {
-            let scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
-            let scroll_delta = self.scroll_factor * (scroll_delta.x + scroll_delta.y);
+            let raw_scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
+            let mut scroll_delta = 0.0;
+            if self.horizontal_scroll {
+                scroll_delta += raw_scroll_delta.x;
+            }
+            if self.vertical_scroll {
+                scroll_delta += raw_scroll_delta.y;
+            }
             let zoom_delta = self.zoom_factor * ui.ctx().input(|i| i.zoom_delta() - 1.0);
 
             if self.logarithmic {
