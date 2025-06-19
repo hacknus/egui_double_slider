@@ -12,7 +12,7 @@ Add double slider along with `eframe` to your `cargo.toml`.
 
 ```toml
 eframe = "0.31"
-egui_double_slider = "0.7.2"
+egui_double_slider = "0.7.3"
 ```
 
 To run the example:

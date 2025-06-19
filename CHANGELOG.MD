@@ -8,6 +8,13 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 * ...
 
+# 0.7.3 - 19.6.2025
+
+### Added:
+
+* Fixed scroll and zoom factors
+
+
 # 0.7.2 - 10.6.2025
 
 ### Added:

@@ -509,12 +509,12 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
             let raw_scroll_delta = ui.ctx().input(|i| i.smooth_scroll_delta);
             let mut scroll_delta = 0.0;
             if self.horizontal_scroll {
-                scroll_delta += raw_scroll_delta.x;
+                scroll_delta += raw_scroll_delta.x * self.scroll_factor;
             }
             if self.vertical_scroll {
-                scroll_delta += raw_scroll_delta.y;
+                scroll_delta += raw_scroll_delta.y * self.scroll_factor;
             }
-            let zoom_delta = self.zoom_factor * ui.ctx().input(|i| i.zoom_delta() - 1.0);
+            let zoom_delta = self.zoom_factor * (ui.ctx().input(|i| i.zoom_delta() - 1.0));
 
             if self.logarithmic {
                 *self.left_slider = self.x_to_val(self.val_to_x(*self.left_slider) + scroll_delta);
