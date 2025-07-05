@@ -35,9 +35,9 @@ pub struct DoubleSlider<'a, T: Numeric> {
     scroll_factor: f32,
     zoom_factor: f32,
     width: f32,
-    color: Color32,
-    cursor_fill: Color32,
-    stroke: Stroke,
+    color: Option<Color32>,
+    cursor_fill: Option<Color32>,
+    stroke: Option<Stroke>,
     range: RangeInclusive<T>,
     logarithmic: bool,
     push_by_dragging: bool,
@@ -56,9 +56,9 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
             scroll_factor: if T::INTEGRAL { 0.04 } else { 0.01 },
             zoom_factor: 10.0,
             width: 100.0,
-            cursor_fill: Color32::DARK_GRAY,
-            color: Color32::DARK_GRAY,
-            stroke: Stroke::new(7.0, Color32::RED.linear_multiply(0.5)),
+            cursor_fill: None,
+            color: None,
+            stroke: None,
             range,
             logarithmic: false,
             push_by_dragging: true,
@@ -121,27 +121,27 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
         self
     }
 
-    /// Set the primary color for the slider.
-    /// Default is `egui::epaint::Color32::DARK_GRAY`.
+    /// Set the primary color for the slider
+    /// Default color is taken from `inactive.bg_fill` in [`egui::style::Widgets`], the same as [`egui::Slider`].
     #[inline]
     pub fn color(mut self, color: Color32) -> Self {
-        self.color = color;
+        self.color = Some(color);
         self
     }
 
     /// Set the stroke for the main line.
-    /// Default is `Stroke::new(7.0, Color32::RED.linear_multiply(0.5))`.
+    /// Default color is taken from `selection.bg_fill` in [`egui::Visuals`], the same as [`egui::Slider`]
     #[inline]
     pub fn stroke(mut self, stroke: Stroke) -> Self {
-        self.stroke = stroke;
+        self.stroke = Some(stroke);
         self
     }
 
     /// Set the color fill for the slider cursor.
-    /// Default is `egui::epaint::Color32::DARK_GRAY`.
+    /// Default fill is taken from `visuals.bg_fill` in [`egui::style::WidgetVisuals`], the same as [`egui::Slider`]
     #[inline]
     pub fn cursor_fill(mut self, cursor_fill: Color32) -> Self {
-        self.cursor_fill = cursor_fill;
+        self.cursor_fill = Some(cursor_fill);
         self
     }
 
@@ -300,10 +300,19 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         let mut right_edge = response.rect.right_center();
         right_edge.x -= self.control_point_radius;
 
+        let visuals = ui.style().interact(&response);
+        let widget_visuals = &ui.visuals().widgets;
+
+        let color = self.color.unwrap_or(widget_visuals.inactive.bg_fill);
+        let cursor_fill = self.cursor_fill.unwrap_or(visuals.bg_fill);
+        let stroke_style = self
+            .stroke
+            .unwrap_or(Stroke::new(7.0, ui.visuals().selection.bg_fill));
+
         // draw the line
         painter.add(PathShape::line(
             vec![left_edge, right_edge],
-            Stroke::new(self.stroke.width, self.color),
+            Stroke::new(stroke_style.width, color),
         ));
 
         let to_screen = RectTransform::from_to(
@@ -315,11 +324,11 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
             let in_between_rect = Rect::from_min_max(
                 to_screen.transform_pos(Pos2 {
                     x: self.val_to_x(*self.left_slider) + self.control_point_radius,
-                    y: height / 2.0 - self.stroke.width / 2.0,
+                    y: height / 2.0 - stroke_style.width / 2.0,
                 }),
                 to_screen.transform_pos(Pos2 {
                     x: self.val_to_x(*self.right_slider) - self.control_point_radius,
-                    y: height / 2.0 + self.stroke.width / 2.0,
+                    y: height / 2.0 + stroke_style.width / 2.0,
                 }),
             );
             let in_between_id = response.id.with(2);
@@ -344,10 +353,10 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
                 stroke.width /= 2.0;
                 stroke
             } else {
-                Stroke::new(1.0, self.stroke.color)
+                Stroke::new(1.0, stroke_style.color)
             }
         } else {
-            Stroke::new(0.0, self.stroke.color)
+            Stroke::new(0.0, stroke_style.color)
         };
 
         // handle lower bound
@@ -422,17 +431,17 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
             let in_between_rect = Rect::from_min_max(
                 to_screen.transform_pos(Pos2 {
                     x: self.val_to_x(*self.left_slider),
-                    y: height / 2.0 - self.stroke.width / 2.0 + OFFSET / 2.0,
+                    y: height / 2.0 - stroke_style.width / 2.0 + OFFSET / 2.0,
                 }),
                 to_screen.transform_pos(Pos2 {
                     x: self.val_to_x(*self.right_slider),
-                    y: height / 2.0 + self.stroke.width / 2.0 - OFFSET / 2.0,
+                    y: height / 2.0 + stroke_style.width / 2.0 - OFFSET / 2.0,
                 }),
             );
             shapes.push(Shape::Rect(RectShape::new(
                 in_between_rect,
                 0.0,
-                self.stroke.color,
+                stroke_style.color,
                 stroke,
                 StrokeKind::Middle,
             )));
@@ -440,36 +449,36 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
             let left_rect = Rect::from_min_max(
                 to_screen.transform_pos(Pos2 {
                     x: self.control_point_radius,
-                    y: height / 2.0 - self.stroke.width / 2.0,
+                    y: height / 2.0 - stroke_style.width / 2.0,
                 }),
                 to_screen.transform_pos(Pos2 {
                     x: self.val_to_x(*self.left_slider),
-                    y: height / 2.0 + self.stroke.width / 2.0,
+                    y: height / 2.0 + stroke_style.width / 2.0,
                 }),
             );
 
             let right_rect = Rect::from_min_max(
                 to_screen.transform_pos(Pos2 {
                     x: self.val_to_x(*self.right_slider),
-                    y: height / 2.0 - self.stroke.width / 2.0,
+                    y: height / 2.0 - stroke_style.width / 2.0,
                 }),
                 to_screen.transform_pos(Pos2 {
                     x: self.width - self.control_point_radius,
-                    y: height / 2.0 + self.stroke.width / 2.0,
+                    y: height / 2.0 + stroke_style.width / 2.0,
                 }),
             );
             shapes.push(Shape::Rect(RectShape::new(
                 left_rect,
                 0.0,
-                self.stroke.color,
-                Stroke::new(0.0, self.stroke.color),
+                stroke_style.color,
+                Stroke::new(0.0, stroke_style.color),
                 StrokeKind::Middle,
             )));
             shapes.push(Shape::Rect(RectShape::new(
                 right_rect,
                 0.0,
-                self.stroke.color,
-                Stroke::new(0.0, self.stroke.color),
+                stroke_style.color,
+                Stroke::new(0.0, stroke_style.color),
                 StrokeKind::Middle,
             )));
         }
@@ -487,14 +496,14 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
         shapes.push(Shape::Circle(CircleShape {
             center: left_point_in_screen,
             radius: self.control_point_radius,
-            fill: self.cursor_fill,
+            fill: cursor_fill,
             stroke: left_circle_stroke,
         }));
 
         shapes.push(Shape::Circle(CircleShape {
             center: right_point_in_screen,
             radius: self.control_point_radius,
-            fill: self.cursor_fill,
+            fill: cursor_fill,
             stroke: right_circle_stroke,
         }));
 
