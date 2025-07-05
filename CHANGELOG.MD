@@ -6,7 +6,7 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 ### Added:
 
-* ...
+* Changed default styles to match active egui visuals
 
 # 0.7.3 - 19.6.2025
 
