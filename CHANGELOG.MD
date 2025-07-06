@@ -6,14 +6,20 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 ### Added:
 
+* ...
+
+# 0.8.0 - 6.7.2025
+
+### Added:
+
 * Changed default styles to match active egui visuals
+* Added `egui-theme-switch` to the example
 
 # 0.7.3 - 19.6.2025
 
 ### Added:
 
 * Fixed scroll and zoom factors
-
 
 # 0.7.2 - 10.6.2025
 

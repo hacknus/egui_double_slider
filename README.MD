@@ -6,13 +6,14 @@
 
 A double slider widget for the GUI rust library [egui](https://github.com/emilk/egui).
 
-![screenshot](screenshot.png)
+![screenshot dark](screenshot_dark.png)
+![screenshot light](screenshot_light.png)
 
 Add double slider along with `eframe` to your `cargo.toml`.
 
 ```toml
 eframe = "0.31"
-egui_double_slider = "0.7.3"
+egui_double_slider = "0.8.0"
 ```
 
 To run the example:
@@ -23,8 +24,8 @@ cargo run --example example
 Example code:
 
 ```rust
-use egui_double_slider::DoubleSlider;
 use egui;
+use egui_double_slider::DoubleSlider;
 
 fn main() {
     egui::__run_test_ui(|ui| {
@@ -40,7 +41,3 @@ fn main() {
     });
 }
 ```
-
-TODO:
-
-- [ ] better connection to egui ctx style (like the normal Slider widget)

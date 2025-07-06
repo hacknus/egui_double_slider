@@ -1,6 +1,7 @@
 use eframe::{App, NativeOptions};
 use egui::{Context, Window};
 use egui_double_slider::DoubleSlider;
+use egui_theme_switch::global_theme_switch;
 
 fn main() {
     let options = NativeOptions::default();
@@ -118,6 +119,10 @@ impl App for MyApp {
             );
             ui.label(format!("Lower Bound: {:.3e}", self.slider_f64_log_low));
             ui.label(format!("Upper Bound: {:.3e}", self.slider_f64_log_high));
+
+            ui.add_space(10.0);
+
+            global_theme_switch(ui);
         });
     }
 }
