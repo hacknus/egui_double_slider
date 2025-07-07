@@ -130,7 +130,7 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
     }
 
     /// Set the stroke for the main line.
-    /// Default color is taken from `selection.bg_fill` in [`egui::Visuals`], the same as [`egui::Slider`]
+    /// Default width is 7.0 and default color is taken from `selection.bg_fill` in [`egui::Visuals`], the same as [`egui::Slider`]
     #[inline]
     pub fn stroke(mut self, stroke: Stroke) -> Self {
         self.stroke = Some(stroke);
