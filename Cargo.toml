@@ -13,8 +13,8 @@ homepage = "https://github.com/hacknus/egui_double_slider"
 license = "Apache-2.0"
 
 [dependencies]
-egui = "0.31"
+egui = "0.32"
 
 [dev-dependencies]
-eframe = "0.31"
-egui-theme-switch = "0.3.0"
+eframe = "0.32"
+egui-theme-switch = { git = "https://github.com/hacknus/egui-theme-switch", branch="egui_0.32" }
