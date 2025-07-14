@@ -12,7 +12,7 @@ A double slider widget for the GUI rust library [egui](https://github.com/emilk/
 Add double slider along with `eframe` to your `cargo.toml`.
 
 ```toml
-eframe = "0.31"
+eframe = "0.32"
 egui_double_slider = "0.9.0"
 ```
 
