@@ -69,8 +69,18 @@ impl<'a, T: Numeric> DoubleSlider<'a, T> {
 
     /// Set the primary width for the slider.
     /// Default is 100.0
+    /// Alias ```Self::size```
     #[inline]
     pub fn width(mut self, size: f32) -> Self {
+        self.slider_px_size = size;
+        self
+    }
+
+    /// Set the primary size for the slider.
+    /// Default is 100.0
+    /// Alias ```Self::width```
+    #[inline]
+    pub fn size(mut self, size: f32) -> Self {
         self.slider_px_size = size;
         self
     }

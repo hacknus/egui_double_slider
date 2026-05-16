@@ -1,5 +1,5 @@
 use eframe::{App, NativeOptions};
-use egui::Window;
+use egui::{SliderOrientation, Window};
 use egui_double_slider::DoubleSlider;
 use egui_theme_switch::global_theme_switch;
 
@@ -22,6 +22,8 @@ pub struct MyApp {
     slider_i32_high: i32,
     slider_f64_log_low: f64,
     slider_f64_log_high: f64,
+    slider_vertical_low: f64,
+    slider_vertical_high: f64,
 }
 
 impl Default for MyApp {
@@ -35,6 +37,8 @@ impl Default for MyApp {
             slider_i32_high: 40,
             slider_f64_log_low: 3e-4,
             slider_f64_log_high: 7e12,
+            slider_vertical_low: 15.0,
+            slider_vertical_high: 40.0,
         }
     }
 }
@@ -119,6 +123,33 @@ impl App for MyApp {
             );
             ui.label(format!("Lower Bound: {:.3e}", self.slider_f64_log_low));
             ui.label(format!("Upper Bound: {:.3e}", self.slider_f64_log_high));
+
+            ui.separator();
+
+            ui.horizontal(|ui| {
+                let text_height = ui.text_style_height(&egui::TextStyle::Body);
+                let extra_slider_height = 50.0;
+
+                ui.vertical(|ui| {
+                    ui.label("Vertical slider");
+                    ui.add_space(extra_slider_height / 3.0);
+                    ui.label(format!("Lower bound: {:.2}", self.slider_vertical_high));
+                    ui.add_space(extra_slider_height / 3.0);
+                    ui.label(format!("Lower bound: {:.2}", self.slider_vertical_low));
+                    ui.add_space(extra_slider_height / 3.0);
+                });
+
+                let vertical_slider_height = text_height * 3.0 + extra_slider_height;
+                ui.add(
+                    DoubleSlider::new(
+                        &mut self.slider_vertical_low,
+                        &mut self.slider_vertical_high,
+                        0.0..=50.0,
+                    )
+                    .size(vertical_slider_height)
+                    .orientation(SliderOrientation::Vertical),
+                );
+            });
 
             ui.add_space(10.0);
 
