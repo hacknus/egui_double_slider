@@ -1,6 +1,6 @@
 use egui::emath::{Numeric, Pos2, Rect, RectTransform, Vec2};
 use egui::epaint::{CircleShape, Color32, PathShape, RectShape, Shape, Stroke};
-use egui::{Sense, Slider, StrokeKind, Ui, Widget};
+use egui::{Sense, StrokeKind, SliderOrientation, Ui, Widget};
 use std::ops::RangeInclusive;
 
 // offset for stroke highlight
@@ -42,14 +42,6 @@ pub struct DoubleSlider<'a, T: Numeric> {
     logarithmic: bool,
     push_by_dragging: bool,
     orientation: SliderOrientation,
-}
-
-/// Specifies the orientation of a [`Slider`].
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum SliderOrientation {
-    Horizontal,
-    Vertical,
 }
 
 impl<'a, T: Numeric> DoubleSlider<'a, T> {
