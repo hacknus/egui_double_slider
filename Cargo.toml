@@ -1,6 +1,6 @@
 [package]
 name = "egui_double_slider"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 authors = ["Linus Leo Stöckli"]
 repository = "https://github.com/hacknus/egui_double_slider"
@@ -13,8 +13,8 @@ homepage = "https://github.com/hacknus/egui_double_slider"
 license = "Apache-2.0"
 
 [dependencies]
-egui = "0.33"
+egui = "0.34"
 
 [dev-dependencies]
-eframe = "0.33"
-egui-theme-switch = "0.5"
+eframe = "0.34"
+egui-theme-switch = "0.7"

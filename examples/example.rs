@@ -1,5 +1,5 @@
 use eframe::{App, NativeOptions};
-use egui::{Context, Window};
+use egui::Window;
 use egui_double_slider::DoubleSlider;
 use egui_theme_switch::global_theme_switch;
 
@@ -40,8 +40,8 @@ impl Default for MyApp {
 }
 
 impl App for MyApp {
-    fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
-        Window::new("Interactive Double Slider").show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        Window::new("Interactive Double Slider").show(ui, |ui| {
             let width = ui.available_width();
 
             // Display slider, linked to the same range as the plot

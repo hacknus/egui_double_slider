@@ -8,6 +8,10 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 * ...
 
+# 1.1.0 - 2.4.2026
+
+* Update to egui 0.34
+
 # 1.0.0 - 28.11.2025
 
 * Update to egui 0.33
