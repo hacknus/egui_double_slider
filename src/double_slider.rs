@@ -1,6 +1,6 @@
 use egui::emath::{Numeric, Pos2, Rect, RectTransform, Vec2};
 use egui::epaint::{CircleShape, Color32, PathShape, RectShape, Shape, Stroke};
-use egui::{Sense, StrokeKind, SliderOrientation, Ui, Widget};
+use egui::{Sense, SliderOrientation, StrokeKind, Ui, Widget};
 use std::ops::RangeInclusive;
 
 // offset for stroke highlight
@@ -417,7 +417,6 @@ impl<'a, T: Numeric> Widget for DoubleSlider<'a, T> {
             let in_between_id = response.id.with(2);
             let in_between_response =
                 ui.interact(in_between_rect, in_between_id, Sense::click_and_drag());
-            
 
             // drag both sliders by dragging the highlighted part (only when not highlighting is not inverted)
             if in_between_response.dragged() {

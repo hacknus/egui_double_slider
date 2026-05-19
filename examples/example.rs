@@ -51,7 +51,7 @@ impl App for MyApp {
         Window::new("Interactive Double Slider")
             .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
             .show(ui, |ui| {
-            let width = ui.available_width();
+                let width = ui.available_width();
 
                 // Display slider, linked to the same range as the plot
                 ui.label("f32 values:");
