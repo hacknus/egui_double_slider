@@ -1,6 +1,6 @@
 [package]
 name = "egui_double_slider"
-version = "1.1.0"
+version = "2.0.0"
 edition = "2021"
 authors = ["Linus Leo Stöckli"]
 repository = "https://github.com/hacknus/egui_double_slider"

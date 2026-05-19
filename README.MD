@@ -13,7 +13,7 @@ Add double slider along with `eframe` to your `cargo.toml`.
 
 ```toml
 eframe = "0.34"
-egui_double_slider = "1.1.0"
+egui_double_slider = "2.0.0"
 ```
 
 To run the example:
@@ -41,3 +41,5 @@ fn main() {
     });
 }
 ```
+
+From version 2.0.0 onwards, `egui` dependency upgrades will result in major changes.

@@ -8,11 +8,9 @@ All notable changes to the `egui double slider` crate will be documented in this
 
 * ...
 
-# Unreleased - 16.4.2026
+# 2.0.0 - 19.5.2026
 
-### Added: 
-
-* Added support for vertical sliders using egui::SliderOrientation.
+* Added support for vertical sliders using egui::SliderOrientation. (thanks to [@rminderhoud](https://github.com/rminderhoud))
 
 # 1.1.0 - 2.4.2026
 
