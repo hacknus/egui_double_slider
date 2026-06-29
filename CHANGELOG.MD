@@ -2,11 +2,15 @@
 
 All notable changes to the `egui double slider` crate will be documented in this file.
 
-# Unreleased 1.X.Y - X.X.2025
+# Unreleased 3.X.Y - X.X.2026
 
 ### Added:
 
 * ...
+
+# 3.0.0 - 29.6.2026
+
+* Update to egui 0.35
 
 # 2.0.0 - 19.5.2026
 
